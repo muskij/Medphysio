@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSessionUser } from "../lib/auth";
-import { listCourses } from "../lib/queries";
+import { listCourses, isSubscribed } from "../lib/queries";
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
 
@@ -9,11 +9,12 @@ const CARD_ICONS = ["\u2721", "\u25c6", "\u2764", "\u25cb", "\u2248", "\u2637"];
 
 export default async function HomePage() {
   const user = await getSessionUser();
+  const subscribed = user ? isSubscribed(user.id) : false;
   const courses = listCourses({ publishedOnly: true });
 
   return (
     <main>
-      <SiteHeader user={user} />
+      <SiteHeader user={user} subscribed={subscribed} />
 
       <section className="hero" id="top">
         <div className="hero-copy">
@@ -133,6 +134,13 @@ export default async function HomePage() {
             mechanisms you need to understand.
           </p>
         </div>
+        <p style={{ margin: "-10px 0 26px", fontSize: 13, color: "#7c9195" }}>
+          Free preview courses are open to everyone. Everything else is unlocked with one{" "}
+          <Link href="/subscribe" style={{ color: "var(--teal)", fontWeight: 700 }}>
+            site-wide subscription
+          </Link>
+          .
+        </p>
         <div className="system-grid">
           {courses.map((course, i) => (
             <Link
@@ -148,7 +156,7 @@ export default async function HomePage() {
               <h3>{course.title}</h3>
               <p>{course.description}</p>
               <div className="tiny-progress">
-                <span style={{ width: course.price_cents === 0 ? "100%" : "0%" }}></span>
+                <span style={{ width: course.requires_subscription ? "0%" : "100%" }}></span>
               </div>
             </Link>
           ))}

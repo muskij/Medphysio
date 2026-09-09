@@ -24,11 +24,12 @@ you outgrow SQLite.
   answer from outside knowledge
 - A proper admin UI (tables, forms, a lesson content editor, a quiz builder)
 
-**Tier 3 — Payments, multi-lecturer, analytics, launch**
-- Stripe Checkout for paid courses, with a webhook that unlocks access
+**Tier 3 — Subscription payments, multi-lecturer, analytics, launch**
+- One site-wide subscription (via **Paystack**) unlocks every course, rather
+  than paying per course — a student subscribes once and gets full access
 - Lecturer accounts that can manage only their own courses; admins manage
   everything
-- An analytics dashboard (enrollments, revenue, average quiz scores,
+- An analytics dashboard (active subscribers, revenue, average quiz scores,
   completions) with charts
 - This README's deployment section
 
@@ -60,13 +61,16 @@ any course whose slug already exists.
 | `AUTH_SECRET` | Everything | Long random string signing login sessions |
 | `ANTHROPIC_API_KEY` | AI Q&A | Get one at console.anthropic.com |
 | `ANTHROPIC_MODEL` | AI Q&A | Optional, defaults to `claude-sonnet-5` |
-| `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` | Paid courses | From your Stripe dashboard |
-| `STRIPE_WEBHOOK_SECRET` | Paid courses | From the Stripe CLI or webhook settings |
-| `NEXT_PUBLIC_SITE_URL` | Paid courses | Used to build Stripe redirect URLs |
+| `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` | Subscriptions | From dashboard.paystack.com > Settings > API Keys & Webhooks |
+| `SUBSCRIPTION_PRICE_MINOR` | Subscriptions | Price in the currency's smallest unit — kobo for NGN. `500000` = ₦5,000 |
+| `PAYSTACK_CURRENCY` | Subscriptions | Defaults to `NGN` |
+| `PAYSTACK_PLAN_CODE` | Subscriptions (optional) | A Paystack Plan code for auto-renewing billing — see below |
+| `SUBSCRIPTION_ACCESS_DAYS` | Subscriptions | Days of access per payment when there's no Plan code. Defaults to 30 |
+| `NEXT_PUBLIC_SITE_URL` | Subscriptions | Used to build the Paystack redirect-back URL |
 
-The app runs fine with only `AUTH_SECRET` set — AI Q&A and payments degrade
-gracefully (clear error messages) until their keys are added, so you can
-launch Tier 1/2 features immediately and turn on Tier 3 later.
+The app runs fine with only `AUTH_SECRET` set — AI Q&A and subscriptions
+degrade gracefully (clear error messages) until their keys are added, so you
+can launch Tier 1/2 features immediately and turn on Tier 3 later.
 
 **Troubleshooting `npm install`:** if you see an error about `node-gyp
 rebuild` failing for `better-sqlite3`, it's almost always safe to ignore —
@@ -89,13 +93,53 @@ normal internet connection (it needs to reach `nodejs.org` once).
 - `lib/ai.js` — the grounded AI assistant. It sends only the requested
   lesson's own mini-text as context and instructs the model to say when a
   question falls outside it, rather than answering from general knowledge.
-- `lib/stripe.js` + `app/api/stripe/*` — Checkout session creation and the
-  webhook that activates enrollment after payment.
+- `lib/paystack.js` + `lib/subscriptions.js` + `app/api/paystack/*` — the
+  site-wide subscription flow: starting checkout, verifying payment, and
+  activating/extending a student's access. See "How the subscription works"
+  below.
 - `app/courses/[courseSlug]/[lessonSlug]/LessonWorkspace.js` — the actual
   learning UI: the five-tab lesson (mini-text, voice, full lecture,
   structured answer, quiz) plus the "Ask AI" panel, all driven by real data.
 - `app/admin/**` — the admin panel: course/topic/lesson CRUD, the quiz
   builder, lecturer management, and the analytics dashboard.
+
+### How the subscription works
+
+This is **one subscription for the whole site**, not per-course purchases.
+Each course has a `requires_subscription` flag (toggle it in the admin course
+settings) — free/preview courses stay open to everyone, everything else
+requires an active subscription.
+
+1. A logged-in student clicks **Subscribe** and hits `POST
+   /api/paystack/checkout`, which calls Paystack's Initialize Transaction API
+   and redirects them to Paystack's hosted payment page.
+2. After paying, Paystack redirects back to `/subscribe/success?reference=...`.
+   That page immediately calls `POST /api/paystack/verify` with the
+   reference, so the student sees confirmation right away rather than waiting
+   on a webhook.
+3. Independently, Paystack also sends a `charge.success` webhook to
+   `POST /api/paystack/webhook`. This is the source of truth for recurring
+   renewals and covers the case where the student closes the tab before the
+   verify call finishes. The signature is checked with HMAC-SHA512 using
+   `PAYSTACK_SECRET_KEY`.
+4. Both paths funnel into `lib/subscriptions.js#activateSubscriptionFromPayment`,
+   which is **idempotent** (keyed on the Paystack transaction `reference`),
+   so it's safe for the verify call and the webhook to both fire for the same
+   payment.
+5. Access is a simple check: `lib/queries.js#isSubscribed(userId)` compares
+   `users.subscription_expires_at` to the current time. No separate
+   "enrollment" step is needed — the `enrollments` table still exists, but
+   it's just bookkeeping for "which courses has this student opened" (used
+   to populate their dashboard), not an access gate.
+
+**Auto-renewing vs. manual renewal:** if you create a
+[Paystack Plan](https://dashboard.paystack.com/#/plans) and set its code in
+`PAYSTACK_PLAN_CODE`, Paystack will automatically charge the student again at
+the plan's interval and send follow-up webhook events — real recurring
+billing. Without a plan code, a successful payment simply grants
+`SUBSCRIPTION_ACCESS_DAYS` (30 by default) of access, and the student pays
+again manually to renew — simpler to set up, no dashboard configuration
+required, but not automatic.
 
 ## 3. Deploying
 
@@ -120,16 +164,20 @@ Railway, Render, Fly.io, or similar with a persistent disk):
 3. Everything else (routes, pages, components) is unchanged, since they all
    go through `lib/db.js` and `lib/queries.js`.
 
-**Stripe webhook in production:** point your Stripe webhook endpoint at
-`https://yourdomain.com/api/stripe/webhook` and put the signing secret it
-gives you into `STRIPE_WEBHOOK_SECRET`.
+**Paystack webhook in production:** in your Paystack dashboard, go to
+Settings > API Keys & Webhooks and set the webhook URL to
+`https://yourdomain.com/api/paystack/webhook`. Paystack signs webhook
+requests with your secret key itself (no separate webhook secret to copy) —
+just make sure `PAYSTACK_SECRET_KEY` is set correctly in production.
 
 **Before launch:**
 - Change the seeded admin password (log in, and update it directly via the
   database, or wire up a password-change form — not included yet).
 - Set a real, random `AUTH_SECRET`.
-- Decide on real course pricing and add courses via the admin panel or the
-  migration script.
+- Set your real `SUBSCRIPTION_PRICE_MINOR` and, if you want auto-renewing
+  billing, create a Paystack Plan and set `PAYSTACK_PLAN_CODE`.
+- Decide which courses (if any) should stay free previews via the
+  "Requires an active subscription" toggle in each course's admin settings.
 
 ## 4. What's intentionally left simple (and how to extend it)
 

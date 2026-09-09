@@ -3,9 +3,8 @@ import { notFound } from "next/navigation";
 import SiteHeader from "../../../components/SiteHeader";
 import SiteFooter from "../../../components/SiteFooter";
 import CourseModules from "./CourseModules";
-import EnrollButton from "./EnrollButton";
 import { getSessionUser } from "../../../lib/auth";
-import { getCourseBySlug, getCourseTree, isEnrolled, getCourseProgress } from "../../../lib/queries";
+import { getCourseBySlug, getCourseTree, isSubscribed, getCourseProgress } from "../../../lib/queries";
 
 export default async function CoursePage({ params }) {
   const course = getCourseBySlug(params.courseSlug);
@@ -14,9 +13,9 @@ export default async function CoursePage({ params }) {
   const user = await getSessionUser();
   const modules = getCourseTree(course.id);
   const totalLessons = modules.reduce((a, m) => a + m.lessons.length, 0);
-  const enrolled = user ? isEnrolled(user.id, course.id) : false;
-  const isFree = course.price_cents === 0;
-  const hasFullAccess = isFree || enrolled;
+  const subscribed = user ? isSubscribed(user.id) : false;
+  const isFree = !course.requires_subscription;
+  const hasFullAccess = isFree || subscribed;
 
   let completedCount = 0;
   if (user) {
@@ -55,9 +54,7 @@ export default async function CoursePage({ params }) {
           <Link className="back-link" href="/">
             &#8592; Back to all courses
           </Link>
-          <span className="course-kicker">
-            {isFree ? "Free course" : `$${(course.price_cents / 100).toFixed(2)}`}
-          </span>
+          <span className="course-kicker">{isFree ? "Free preview" : "Included with subscription"}</span>
           <h1>{course.title}</h1>
           <p>{course.description}</p>
           <div className="course-facts">
@@ -82,7 +79,9 @@ export default async function CoursePage({ params }) {
               </Link>
             ) : null
           ) : (
-            <EnrollButton courseId={course.id} priceCents={course.price_cents} />
+            <Link className="button" href="/subscribe">
+              Subscribe for full access &#8594;
+            </Link>
           )}
         </div>
       </section>

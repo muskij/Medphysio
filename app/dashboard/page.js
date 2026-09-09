@@ -3,10 +3,11 @@ import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
 import { getSessionUser } from "../../lib/auth";
 import { db } from "../../lib/db";
-import { getCourseTree, getCourseProgress } from "../../lib/queries";
+import { getCourseTree, getCourseProgress, isSubscribed } from "../../lib/queries";
 
 export default async function DashboardPage() {
   const user = await getSessionUser();
+  const subscribed = isSubscribed(user.id);
 
   const enrollments = db
     .prepare(
@@ -28,7 +29,7 @@ export default async function DashboardPage() {
 
   return (
     <main>
-      <SiteHeader user={user} />
+      <SiteHeader user={user} subscribed={subscribed} />
       <section className="section" style={{ paddingTop: 60 }}>
         <div className="section-heading">
           <div>
@@ -36,6 +37,32 @@ export default async function DashboardPage() {
             <h2>Hi {user.name.split(" ")[0]}, keep the momentum going.</h2>
           </div>
         </div>
+
+        {user.role === "STUDENT" && (
+          <p
+            style={{
+              marginBottom: 30,
+              padding: "12px 16px",
+              borderRadius: 10,
+              background: subscribed ? "var(--mint)" : "#fff4e8",
+              color: subscribed ? "var(--teal)" : "#8a5a1f",
+              fontWeight: 600,
+              display: "inline-block",
+            }}
+          >
+            {subscribed
+              ? "Your subscription is active \u2014 you have full access to every course."
+              : "You don't have an active subscription yet."}
+            {!subscribed && (
+              <>
+                {" "}
+                <Link href="/subscribe" style={{ color: "var(--navy)", fontWeight: 800 }}>
+                  Subscribe now &#8594;
+                </Link>
+              </>
+            )}
+          </p>
+        )}
 
         {(user.role === "ADMIN" || user.role === "LECTURER") && (
           <p style={{ marginBottom: 30 }}>

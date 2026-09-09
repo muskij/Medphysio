@@ -1,7 +1,7 @@
 import Link from "next/link";
 import LogoutButton from "./LogoutButton";
 
-export default function SiteHeader({ user }) {
+export default function SiteHeader({ user, subscribed }) {
   return (
     <header className="site-header">
       <Link className="logo" href="/" aria-label="MedPhysio Tutorials home">
@@ -22,6 +22,11 @@ export default function SiteHeader({ user }) {
             <Link className="nav-login" href={user.role === "STUDENT" ? "/dashboard" : "/admin"}>
               {user.name.split(" ")[0]}&rsquo;s {user.role === "STUDENT" ? "dashboard" : "admin"}
             </Link>
+            {user.role === "STUDENT" && !subscribed && (
+              <Link className="button small" href="/subscribe">
+                Subscribe
+              </Link>
+            )}
             <LogoutButton className="button small" />
           </>
         ) : (

@@ -22,7 +22,7 @@ export async function POST(req) {
   if (!requireStaff(user)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
-  const { title, description = "", priceCents = 0, lecturerId } = body;
+  const { title, description = "", requiresSubscription = true, lecturerId } = body;
   if (!title) return NextResponse.json({ error: "Title is required." }, { status: 400 });
 
   let slug = slugify(title);
@@ -33,9 +33,9 @@ export async function POST(req) {
   const ownerId = user.role === "LECTURER" ? user.id : lecturerId || null;
 
   db.prepare(
-    `INSERT INTO courses (id, slug, title, description, price_cents, lecturer_id, published)
+    `INSERT INTO courses (id, slug, title, description, requires_subscription, lecturer_id, published)
      VALUES (?, ?, ?, ?, ?, ?, 1)`
-  ).run(id, slug, title, description, Number(priceCents) || 0, ownerId);
+  ).run(id, slug, title, description, requiresSubscription ? 1 : 0, ownerId);
 
   return NextResponse.json({ id, slug });
 }

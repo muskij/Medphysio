@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "../../../../lib/auth";
+import { db } from "../../../../lib/db";
+import { newId } from "../../../../lib/ids";
 import {
   getLessonBySlugs,
   getCourseById,
   getCourseTree,
-  isEnrolled,
+  isSubscribed,
   getQuizQuestions,
   getLessonProgress,
 } from "../../../../lib/queries";
@@ -19,9 +21,9 @@ export default async function LessonPage({ params }) {
   const course = getCourseById(lesson.course_id);
   const user = await getSessionUser();
 
-  const isFree = course.price_cents === 0;
-  const enrolled = user ? isEnrolled(user.id, course.id) : false;
-  const hasAccess = lesson.free_preview || isFree || enrolled;
+  const isFree = !course.requires_subscription;
+  const subscribed = user ? isSubscribed(user.id) : false;
+  const hasAccess = lesson.free_preview || isFree || subscribed;
 
   if (!hasAccess) {
     redirect(`/courses/${courseSlug}?locked=1`);
@@ -29,6 +31,13 @@ export default async function LessonPage({ params }) {
   if (!user) {
     redirect(`/login?next=/courses/${courseSlug}/${lessonSlug}`);
   }
+
+  // Bookkeeping only (doesn't gate access): remember that this student has opened
+  // this course, so it shows up on their dashboard.
+  db.prepare(
+    `INSERT INTO enrollments (id, user_id, course_id, status) VALUES (?, ?, ?, 'ACTIVE')
+     ON CONFLICT(user_id, course_id) DO NOTHING`
+  ).run(newId(), user.id, course.id);
 
   const modules = getCourseTree(course.id);
   const flatLessons = modules.flatMap((m) => m.lessons);

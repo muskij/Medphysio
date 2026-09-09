@@ -28,9 +28,9 @@ export async function PATCH(req, { params }) {
       values.push(key === "published" ? (body[key] ? 1 : 0) : body[key]);
     }
   }
-  if (body.priceCents !== undefined) {
-    fields.push("price_cents = ?");
-    values.push(Number(body.priceCents) || 0);
+  if (body.requiresSubscription !== undefined) {
+    fields.push("requires_subscription = ?");
+    values.push(body.requiresSubscription ? 1 : 0);
   }
   if (user.role === "ADMIN" && body.lecturerId !== undefined) {
     fields.push("lecturer_id = ?");

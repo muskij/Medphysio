@@ -25,7 +25,7 @@ export default async function AdminCoursesPage() {
             <tr>
               <th>Course</th>
               <th>Lecturer</th>
-              <th>Price</th>
+              <th>Access</th>
               <th>Lessons</th>
               <th></th>
             </tr>
@@ -35,7 +35,7 @@ export default async function AdminCoursesPage() {
               <tr key={c.id}>
                 <td>{c.title}</td>
                 <td>{c.lecturer_name || "\u2014"}</td>
-                <td>{c.price_cents === 0 ? "Free" : `$${(c.price_cents / 100).toFixed(2)}`}</td>
+                <td>{c.requires_subscription ? "Subscription" : "Free"}</td>
                 <td>{c.lesson_count}</td>
                 <td>
                   <Link href={`/admin/courses/${c.id}`}>Manage &#8594;</Link>

@@ -10,7 +10,7 @@ export default function AnalyticsCharts({ perCourse }) {
   return (
     <div>
       <div style={{ height: 280, marginBottom: 30 }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: "#526a6f", marginBottom: 8 }}>Active enrollments</p>
+        <p style={{ fontSize: 13, fontWeight: 700, color: "#526a6f", marginBottom: 8 }}>Students started</p>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={perCourse}>
             <CartesianGrid strokeDasharray="3 3" stroke="#eef4f3" />

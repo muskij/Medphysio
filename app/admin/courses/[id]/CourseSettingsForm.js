@@ -7,7 +7,7 @@ export default function CourseSettingsForm({ course, lecturers, isAdmin }) {
   const router = useRouter();
   const [title, setTitle] = useState(course.title);
   const [description, setDescription] = useState(course.description || "");
-  const [priceCents, setPriceCents] = useState(course.price_cents);
+  const [requiresSubscription, setRequiresSubscription] = useState(!!course.requires_subscription);
   const [published, setPublished] = useState(!!course.published);
   const [lecturerId, setLecturerId] = useState(course.lecturer_id || "");
   const [saving, setSaving] = useState(false);
@@ -26,7 +26,7 @@ export default function CourseSettingsForm({ course, lecturers, isAdmin }) {
         body: JSON.stringify({
           title,
           description,
-          priceCents: Number(priceCents) || 0,
+          requiresSubscription,
           published,
           ...(isAdmin ? { lecturerId: lecturerId || null } : {}),
         }),
@@ -57,15 +57,17 @@ export default function CourseSettingsForm({ course, lecturers, isAdmin }) {
       <label htmlFor="description">Description</label>
       <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
 
-      <label htmlFor="price">Price (USD)</label>
-      <input
-        id="price"
-        type="number"
-        min="0"
-        step="0.01"
-        value={priceCents / 100}
-        onChange={(e) => setPriceCents(Math.round(Number(e.target.value) * 100))}
-      />
+      <div className="checkbox-row">
+        <input
+          id="requiresSubscription"
+          type="checkbox"
+          checked={requiresSubscription}
+          onChange={(e) => setRequiresSubscription(e.target.checked)}
+        />
+        <label htmlFor="requiresSubscription" style={{ margin: 0 }}>
+          Requires an active subscription (uncheck to make it free for everyone)
+        </label>
+      </div>
 
       {isAdmin && (
         <>
