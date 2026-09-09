@@ -1,0 +1,30 @@
+import Link from "next/link";
+import { getSessionUser } from "../../lib/auth";
+import LogoutButton from "../../components/LogoutButton";
+
+export default async function AdminLayout({ children }) {
+  const user = await getSessionUser();
+
+  return (
+    <div className="admin-shell">
+      <link rel="stylesheet" href="/assets/css/admin.css" />
+      <aside className="admin-sidebar">
+        <Link className="admin-logo" href="/admin">
+          MedPhysio Admin
+        </Link>
+        <Link href="/admin">Dashboard</Link>
+        <Link href="/admin/courses">Courses</Link>
+        {user?.role === "ADMIN" && <Link href="/admin/lecturers">Lecturers</Link>}
+        <Link href="/admin/analytics">Analytics</Link>
+        <Link href="/">&#8592; View site</Link>
+        <div className="admin-role">
+          <div style={{ marginBottom: 8 }}>
+            {user?.name} &middot; {user?.role}
+          </div>
+          <LogoutButton className="admin-btn secondary" />
+        </div>
+      </aside>
+      <main className="admin-main">{children}</main>
+    </div>
+  );
+}
