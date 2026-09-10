@@ -23,6 +23,13 @@ you outgrow SQLite.
 - AI assistant is grounded strictly in that lesson's own text and refuses to
   answer from outside knowledge
 - A proper admin UI (tables, forms, a lesson content editor, a quiz builder)
+- **AI-generated quiz questions**: a "Generate with AI" button in the quiz
+  builder writes multiple-choice questions (with distractors, a correct
+  answer, and an explanation) straight from the lesson's own mini-text, which
+  you can then review, edit or delete like any manually-added question
+- Lecturers can create and manage entire courses themselves — new topics,
+  lessons, and quizzes — scoped to courses they own; admins can manage every
+  course and assign lecturers to any of them
 
 **Tier 3 — Subscription payments, multi-lecturer, analytics, launch**
 - One site-wide subscription (via **Paystack**) unlocks every course, rather

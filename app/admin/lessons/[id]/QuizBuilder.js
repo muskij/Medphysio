@@ -20,6 +20,37 @@ export default function QuizBuilder({ lessonId, initialQuestions }) {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const [generateCount, setGenerateCount] = useState(5);
+  const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState("");
+  const [generateSuccess, setGenerateSuccess] = useState("");
+
+  async function handleGenerate() {
+    setGenerating(true);
+    setGenerateError("");
+    setGenerateSuccess("");
+    try {
+      const res = await fetch("/api/quiz/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lessonId, count: generateCount }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setGenerateError(data.error || "Something went wrong.");
+        return;
+      }
+      setQuestions(data.questions);
+      setGenerateSuccess(
+        `Added ${data.generatedCount} AI-generated question${data.generatedCount === 1 ? "" : "s"}. Review them below \u2014 you can edit or delete any of them like normal.`
+      );
+    } catch {
+      setGenerateError("Something went wrong reaching the AI generator.");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   function updateNewOption(i, field, value) {
     setNewOptions((prev) => prev.map((o, idx) => (idx === i ? { ...o, [field]: value } : o)));
   }
@@ -89,9 +120,36 @@ export default function QuizBuilder({ lessonId, initialQuestions }) {
       ))}
       {questions.length === 0 && <p style={{ color: "#8fa2a5" }}>No questions yet.</p>}
 
+      <div className="admin-card" style={{ background: "#f6faf9", marginTop: 16, marginBottom: 0, padding: 18 }}>
+        <strong style={{ fontSize: 14 }}>Generate with AI</strong>
+        <p style={{ fontSize: 12, color: "#7c9195", margin: "4px 0 12px" }}>
+          Writes multiple-choice questions from this lesson&rsquo;s mini-text content. Review and edit them afterwards
+          like any other question.
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <label htmlFor="genCount" style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>
+            How many?
+          </label>
+          <input
+            id="genCount"
+            type="number"
+            min={1}
+            max={10}
+            value={generateCount}
+            onChange={(e) => setGenerateCount(Number(e.target.value))}
+            style={{ width: 60, padding: "6px 8px", borderRadius: 8, border: "1px solid var(--line)" }}
+          />
+          <button className="admin-btn" type="button" onClick={handleGenerate} disabled={generating}>
+            {generating ? "Generating\u2026" : "\u2728 Generate questions"}
+          </button>
+        </div>
+        {generateError && <p className="admin-error">{generateError}</p>}
+        {generateSuccess && <p className="admin-success">{generateSuccess}</p>}
+      </div>
+
       {!adding ? (
-        <button className="admin-btn" style={{ marginTop: 16 }} onClick={() => setAdding(true)}>
-          + Add question
+        <button className="admin-btn secondary" style={{ marginTop: 16 }} onClick={() => setAdding(true)}>
+          + Add question manually
         </button>
       ) : (
         <form className="admin-form" onSubmit={handleAddQuestion} style={{ marginTop: 16 }}>
