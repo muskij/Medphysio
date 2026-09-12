@@ -27,6 +27,15 @@ you outgrow SQLite.
   builder writes multiple-choice questions (with distractors, a correct
   answer, and an explanation) straight from the lesson's own mini-text, which
   you can then review, edit or delete like any manually-added question
+- **AI-generated topics**: a "Generate a whole topic with AI" panel on the
+  course page creates a new topic and lesson from just a title and a short
+  description \u2014 paste any video/voice/answer links you have (they're
+  normalized to embeddable URLs automatically) and the AI drafts the
+  mini-text and video blurbs using the site's own component vocabulary
+  (cause grids, clinical-relevance boxes, exam-tip callouts, etc.), so
+  generated lessons render natively instead of looking like generic AI
+  paragraphs. You're dropped straight into the lesson editor afterwards to
+  review and adjust anything before it goes live.
 - Lecturers can create and manage entire courses themselves — new topics,
   lessons, and quizzes — scoped to courses they own; admins can manage every
   course and assign lecturers to any of them

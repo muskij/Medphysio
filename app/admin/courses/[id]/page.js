@@ -4,6 +4,7 @@ import { getSessionUser } from "../../../../lib/auth";
 import { getCourseById, getModulesForCourse, listLecturers } from "../../../../lib/queries";
 import CourseSettingsForm from "./CourseSettingsForm";
 import ModuleManager from "./ModuleManager";
+import AITopicCreator from "./AITopicCreator";
 
 export default async function AdminCourseDetailPage({ params }) {
   const user = await getSessionUser();
@@ -36,6 +37,7 @@ export default async function AdminCourseDetailPage({ params }) {
       <div className="admin-card">
         <h3 style={{ marginTop: 0 }}>Modules &amp; lessons</h3>
         <ModuleManager courseId={course.id} courseSlug={course.slug} initialModules={modules} />
+        <AITopicCreator courseId={course.id} courseSlug={course.slug} />
       </div>
     </>
   );
