@@ -52,10 +52,14 @@ footer{max-width:1184px;margin:auto;padding:45px 28px 28px;display:grid;grid-tem
 .bank-details-grid small{display:block;color:#7c9195;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:3px}
 .bank-details-grid strong{color:var(--navy);font-size:15px}
 .join-form-card{margin-top:16px;padding:20px 22px;border-radius:16px;background:white;border:1px solid var(--line)}
-.jf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.join-form-card label{display:block;margin-bottom:6px;font-size:10px;font-weight:800;color:var(--navy)}
-.join-form-card input,.join-form-card textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:12px;color:var(--ink);font-family:inherit;outline:0}
-.join-form-card input:focus,.join-form-card textarea:focus{border-color:var(--teal)}
+.jf-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.join-form-card label{display:block;margin-bottom:22px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#8a9a9c}
+.join-form-card input,.join-form-card textarea{margin-top:8px;width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid transparent;background:#f4f6f7;border-radius:14px;font-size:13px;color:var(--ink);font-family:inherit;outline:0;transition:.15s}
+.join-form-card input:focus,.join-form-card textarea:focus{border-color:var(--teal);background:white}
+.join-form-card input::placeholder,.join-form-card textarea::placeholder{color:#b7c2c3}
+.upgrade-btn{display:inline-flex;align-items:center;gap:7px;padding:11px 20px!important;border-radius:999px!important;background:linear-gradient(135deg,#7c5cff,#a06bff)!important;color:#fff;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 8px 18px rgba(124,92,255,.35)!important;border:none;transition:.2s}
+.upgrade-btn:hover{transform:translateY(-2px);filter:brightness(1.06);background:linear-gradient(135deg,#7c5cff,#a06bff)!important}
+.upgrade-btn svg{width:13px;height:13px;flex:none}
 .join-form-card textarea{resize:vertical}
 @media(max-width:560px){.bank-details-grid,.jf-grid{grid-template-columns:1fr}}
 
