@@ -17,7 +17,7 @@ export default function SiteFooter() {
         <Link href="/#courses">Courses</Link>
         <Link href="/#method">How it works</Link>
         <Link href="/#about">About</Link>
-        <Link href="/#join">Contact</Link>
+        <Link href="/#contact">Contact</Link>
       </div>
       <small>&copy; {new Date().getFullYear()} MedPhysio Tutorials. Built for curious minds.</small>
     </footer>

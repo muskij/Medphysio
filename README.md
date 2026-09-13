@@ -126,6 +126,35 @@ Each course has a `requires_subscription` flag (toggle it in the admin course
 settings) — free/preview courses stay open to everyone, everything else
 requires an active subscription.
 
+**Payment is by direct bank transfer, verified manually by an admin** (not
+Paystack — the Paystack code is still in the repo and can be wired back up
+later if you want card payments, but it isn't linked from the UI):
+
+1. An admin sets the bank account students should transfer to from
+   **/admin/payments** (bank name, account name, account number, plus an
+   optional note). This is stored in the `settings` table.
+2. A logged-in student visiting **/subscribe** sees those bank details, makes
+   the transfer themselves, then fills in a short form (their account name,
+   account number, bank name, amount, date paid, and an optional receipt
+   image/PDF) which is saved to `payment_submissions` with status `PENDING`.
+   After submitting, they're shown a **"Send receipt on WhatsApp"** button
+   (`wa.me` link) so they can also forward proof of payment directly for
+   faster confirmation.
+3. The admin reviews pending submissions on **/admin/payments** — each row
+   shows the student, the payer's bank details, the amount, and a link to
+   the uploaded receipt (saved under `public/uploads/receipts/`). Clicking
+   **Verify** activates the student's subscription immediately (via the same
+   `activateSubscriptionFromPayment` used by the old Paystack flow, so it's
+   idempotent per submission); **Reject** marks it rejected with an optional
+   note the student sees so they can correct and resubmit.
+4. Access is a simple check: `lib/queries.js#isSubscribed(userId)` compares
+   `users.subscription_expires_at` to the current time — same as before.
+   A verified bank transfer grants `SUBSCRIPTION_ACCESS_DAYS` (30 by default)
+   of access, same as a manual (non-plan) Paystack payment would.
+
+<details>
+<summary>The original Paystack (card payment) flow, for reference</summary>
+
 1. A logged-in student clicks **Subscribe** and hits `POST
    /api/paystack/checkout`, which calls Paystack's Initialize Transaction API
    and redirects them to Paystack's hosted payment page.
@@ -156,6 +185,8 @@ billing. Without a plan code, a successful payment simply grants
 `SUBSCRIPTION_ACCESS_DAYS` (30 by default) of access, and the student pays
 again manually to renew — simpler to set up, no dashboard configuration
 required, but not automatic.
+
+</details>
 
 ## 3. Deploying
 

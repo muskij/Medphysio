@@ -259,6 +259,39 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="section contact" id="contact">
+        <div className="section-heading">
+          <div>
+            <span className="kicker">We&rsquo;re here to help</span>
+            <h2>
+              Get in touch
+              <br />
+              <em>with MedPhysio Tutorials.</em>
+            </h2>
+          </div>
+          <p>Questions about courses, subscriptions or anything else? Reach us any of these ways.</p>
+        </div>
+        <div className="contact-grid">
+          <div className="contact-card">
+            <span className="contact-icon">&#9993;</span>
+            <h3>Email</h3>
+            <a href="mailto:MedPhysioTutorial@gmail.com">MedPhysioTutorial@gmail.com</a>
+          </div>
+          <div className="contact-card">
+            <span className="contact-icon">&#9742;</span>
+            <h3>Phone</h3>
+            <a href="tel:+2348032439067">0803 243 9067</a>
+          </div>
+          <div className="contact-card">
+            <span className="contact-icon">&#128172;</span>
+            <h3>WhatsApp</h3>
+            <a href="https://wa.me/2348032429067" target="_blank" rel="noopener noreferrer">
+              0803 242 9067
+            </a>
+          </div>
+        </div>
+      </section>
+
       <section className="join" id="join">
         <div>
           <span className="kicker">Your learning journey starts here</span>

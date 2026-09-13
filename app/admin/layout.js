@@ -15,6 +15,7 @@ export default async function AdminLayout({ children }) {
         <Link href="/admin">Dashboard</Link>
         <Link href="/admin/courses">Courses</Link>
         {user?.role === "ADMIN" && <Link href="/admin/lecturers">Lecturers</Link>}
+        {user?.role === "ADMIN" && <Link href="/admin/payments">Payments</Link>}
         <Link href="/admin/analytics">Analytics</Link>
         <Link href="/">&#8592; View site</Link>
         <div className="admin-role">
