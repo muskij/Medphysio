@@ -15,7 +15,7 @@ you outgrow SQLite.
 **Tier 1 — Admin + accounts + basic AI**
 - Admin panel to create courses, topics ("modules") and lessons
 - Student registration/login (email + password)
-- AI Q&A per lesson (calls the Anthropic API)
+- AI Q&A per lesson (calls the OpenAI API)
 
 **Tier 2 — Quiz engine, progress, grounded AI, cleaner admin**
 - Multi-question quiz engine per lesson, graded server-side
@@ -75,8 +75,8 @@ any course whose slug already exists.
 | Variable | Required for | Notes |
 |---|---|---|
 | `AUTH_SECRET` | Everything | Long random string signing login sessions |
-| `ANTHROPIC_API_KEY` | AI Q&A | Get one at console.anthropic.com |
-| `ANTHROPIC_MODEL` | AI Q&A | Optional, defaults to `claude-sonnet-5` |
+| `OPENAI_API_KEY` | AI Q&A, quiz + lesson generation | Get one at platform.openai.com/api-keys |
+| `OPENAI_MODEL` | AI features | Optional, defaults to `gpt-4o-mini` |
 | `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` | Subscriptions | From dashboard.paystack.com > Settings > API Keys & Webhooks |
 | `SUBSCRIPTION_PRICE_MINOR` | Subscriptions | Price in the currency's smallest unit — kobo for NGN. `500000` = ₦5,000 |
 | `PAYSTACK_CURRENCY` | Subscriptions | Defaults to `NGN` |
