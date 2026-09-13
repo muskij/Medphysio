@@ -76,7 +76,7 @@ any course whose slug already exists.
 |---|---|---|
 | `AUTH_SECRET` | Everything | Long random string signing login sessions |
 | `OPENAI_API_KEY` | AI Q&A, quiz + lesson generation | Get one at platform.openai.com/api-keys |
-| `OPENAI_MODEL` | AI features | Optional, defaults to `gpt-4o-mini` |
+| `OPENAI_MODEL` | AI features | Optional, defaults to `gpt-5.6-terra` |
 | `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` | Subscriptions | From dashboard.paystack.com > Settings > API Keys & Webhooks |
 | `SUBSCRIPTION_PRICE_MINOR` | Subscriptions | Price in the currency's smallest unit — kobo for NGN. `500000` = ₦5,000 |
 | `PAYSTACK_CURRENCY` | Subscriptions | Defaults to `NGN` |

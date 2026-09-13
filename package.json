@@ -2,14 +2,13 @@
   "name": "medphysio-platform",
   "version": "1.0.0",
   "private": true,
-  "license": "ISC",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "seed:accounts": "node scripts/seed-accounts.mjs",
-    "migrate:static": "node scripts/migrate-static-content.mjs"
+    "migrate:static": "node scripts/migrate-static-content.mjs",
+    "seed:accounts": "node scripts/seed-accounts.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
