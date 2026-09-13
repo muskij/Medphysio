@@ -52,7 +52,7 @@ footer{max-width:1184px;margin:auto;padding:45px 28px 28px;display:grid;grid-tem
 .bank-details-grid small{display:block;color:#7c9195;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:3px}
 .bank-details-grid strong{color:var(--navy);font-size:15px}
 .join-form-card{margin-top:16px;padding:20px 22px;border-radius:16px;background:white;border:1px solid var(--line)}
-.jf-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.jf-grid{display:grid!important;grid-template-columns:1fr;gap:14px}
 .join-form-card label{display:block;margin-bottom:22px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#8a9a9c}
 .join-form-card input,.join-form-card textarea{margin-top:8px;width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid transparent;background:#f4f6f7;border-radius:14px;font-size:13px;color:var(--ink);font-family:inherit;outline:0;transition:.15s}
 .join-form-card input:focus,.join-form-card textarea:focus{border-color:var(--teal);background:white}
