@@ -45,3 +45,31 @@ footer{max-width:1184px;margin:auto;padding:45px 28px 28px;display:grid;grid-tem
 
 .cause-grid,.morph-grid{margin:14px 0 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.cause-grid>div,.morph-grid>div{padding:17px;border:1px solid #e1eae8;border-radius:12px;background:#fbfdfc}.cause-grid>div>span{width:25px;height:25px;display:grid;place-items:center;border-radius:8px;background:#ffe5e1;color:#cf5c55;font-size:9px;font-weight:900}.cause-grid h4,.morph-grid h4{margin:10px 0 6px;color:var(--navy);font-size:11px}.cause-grid p,.morph-grid p{margin:0;color:#6b8185;font-size:9px;line-height:1.6}.morph-grid>div{background:#fff5f0}.morph-grid>div:nth-child(2){background:#eef9f6}.morph-grid>div:nth-child(3){background:#f1effb}.morph-grid>div>span{display:inline-block;padding:5px 7px;border-radius:6px;background:white;color:#c76458;font-size:8px;font-weight:900}.morph-grid>div:nth-child(2)>span{color:#23857e}.morph-grid>div:nth-child(3)>span{color:#6c5bb0}
 @media(max-width:650px){.cause-grid,.morph-grid{grid-template-columns:1fr}}
+
+/* --- Bank transfer / contact additions --- */
+.bank-details-card{margin-top:22px;padding:20px 22px;border-radius:16px;background:#f4fbf8;border:1px solid #d7ece6}
+.bank-details-grid{margin-top:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.bank-details-grid small{display:block;color:#7c9195;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:3px}
+.bank-details-grid strong{color:var(--navy);font-size:15px}
+.join-form-card{margin-top:16px;padding:20px 22px;border-radius:16px;background:white;border:1px solid var(--line)}
+.jf-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.join-form-card label{display:block;margin-bottom:22px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#8a9a9c}
+.join-form-card input,.join-form-card textarea{margin-top:8px;width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid transparent;background:#f4f6f7;border-radius:14px;font-size:13px;color:var(--ink);font-family:inherit;outline:0;transition:.15s}
+.join-form-card input:focus,.join-form-card textarea:focus{border-color:var(--teal);background:white}
+.join-form-card input::placeholder,.join-form-card textarea::placeholder{color:#b7c2c3}
+.upgrade-btn{display:inline-flex;align-items:center;gap:7px;padding:11px 20px!important;border-radius:999px!important;background:linear-gradient(135deg,#7c5cff,#a06bff)!important;color:#fff;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 8px 18px rgba(124,92,255,.35)!important;border:none;transition:.2s}
+.upgrade-btn:hover{transform:translateY(-2px);filter:brightness(1.06);background:linear-gradient(135deg,#7c5cff,#a06bff)!important}
+.upgrade-btn svg{width:13px;height:13px;flex:none}
+.join-form-card textarea{resize:vertical}
+@media(max-width:560px){.bank-details-grid,.jf-grid{grid-template-columns:1fr}}
+
+.contact{background:#f4fbf8}
+.contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:10px}
+.contact-card{padding:26px;border-radius:18px;background:white;border:1px solid #173a4312;transition:.2s}
+.contact-card:hover{transform:translateY(-4px);box-shadow:0 17px 35px #2655521a}
+.contact-card .contact-icon{width:47px;height:47px;display:grid;place-items:center;border-radius:14px;background:#ddf5e5;color:#51a56d;font-size:20px;margin-bottom:14px}
+.contact-card h3{margin:0 0 6px;color:var(--navy);font-size:15px}
+.contact-card a{color:#087772;font-weight:800;font-size:13px;text-decoration:none}
+.contact-card a:hover{text-decoration:underline}
+.contact-card p{margin:0;color:#75898c;font-size:11px}
+@media(max-width:900px){.contact-grid{grid-template-columns:1fr}}

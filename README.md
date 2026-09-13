@@ -41,17 +41,8 @@ you outgrow SQLite.
   course and assign lecturers to any of them
 
 **Tier 3 — Subscription payments, multi-lecturer, analytics, launch**
-- One site-wide subscription unlocks every course, rather than paying per
-  course — a student subscribes once and gets full access
-- **Payment is via direct bank transfer, verified manually by an admin**: the
-  admin sets their bank account details in `/admin/payment-settings`, a
-  student submits their payer details on `/subscribe` and sends a receipt via
-  WhatsApp, and the admin approves or rejects the claim in
-  `/admin/transfer-requests` — approving instantly activates their
-  subscription. (Paystack card-payment code is still in the codebase, unused,
-  in case you want automated payments back later — see "Switching back to
-  Paystack" below.)
-- A Contact Us section (email, phone, WhatsApp) on the homepage and footer
+- One site-wide subscription (via **Paystack**) unlocks every course, rather
+  than paying per course — a student subscribes once and gets full access
 - Lecturer accounts that can manage only their own courses; admins manage
   everything
 - An analytics dashboard (active subscribers, revenue, average quiz scores,
@@ -86,11 +77,11 @@ any course whose slug already exists.
 | `AUTH_SECRET` | Everything | Long random string signing login sessions |
 | `OPENAI_API_KEY` | AI Q&A, quiz + lesson generation | Get one at platform.openai.com/api-keys |
 | `OPENAI_MODEL` | AI features | Optional, defaults to `gpt-5.6-terra` |
-| `SUBSCRIPTION_PRICE_MINOR` | Subscriptions (bank transfer) | Price shown to students, in the currency's smallest unit — kobo for NGN. `500000` = NGN 5,000 |
-| `SUBSCRIPTION_CURRENCY` | Subscriptions (bank transfer) | Defaults to `NGN` |
-| `SUBSCRIPTION_ACCESS_DAYS` | Subscriptions (bank transfer) | Days of access granted per verified transfer. Defaults to 30 |
-| `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` | Only if you re-enable Paystack | Not used by the active bank-transfer flow — see "Switching back to Paystack" |
-| `PAYSTACK_PLAN_CODE` | Only if you re-enable Paystack | A Paystack Plan code for auto-renewing billing |
+| `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` | Subscriptions | From dashboard.paystack.com > Settings > API Keys & Webhooks |
+| `SUBSCRIPTION_PRICE_MINOR` | Subscriptions | Price in the currency's smallest unit — kobo for NGN. `500000` = ₦5,000 |
+| `PAYSTACK_CURRENCY` | Subscriptions | Defaults to `NGN` |
+| `PAYSTACK_PLAN_CODE` | Subscriptions (optional) | A Paystack Plan code for auto-renewing billing — see below |
+| `SUBSCRIPTION_ACCESS_DAYS` | Subscriptions | Days of access per payment when there's no Plan code. Defaults to 30 |
 | `NEXT_PUBLIC_SITE_URL` | Subscriptions | Used to build the Paystack redirect-back URL |
 
 The app runs fine with only `AUTH_SECRET` set — AI Q&A and subscriptions
@@ -135,55 +126,67 @@ Each course has a `requires_subscription` flag (toggle it in the admin course
 settings) — free/preview courses stay open to everyone, everything else
 requires an active subscription.
 
-Payment is **manual bank transfer, verified by an admin** — there's no
-payment gateway in the active path, so there are no transaction fees and
-nothing to configure beyond your bank details:
+**Payment is by direct bank transfer, verified manually by an admin** (not
+Paystack — the Paystack code is still in the repo and can be wired back up
+later if you want card payments, but it isn't linked from the UI):
 
-1. An admin sets the bank account students should pay into at
-   `/admin/payment-settings` (bank name, account name, account number).
-2. A student on `/subscribe` sees those details and the price (from
-   `SUBSCRIPTION_PRICE_MINOR` / `SUBSCRIPTION_CURRENCY`), then fills in a
-   short form: the account name and number *they paid from*, their bank, and
-   an optional note. This creates a `PENDING` row in `transfer_requests`.
-3. After submitting, the student gets a **"Send receipt on WhatsApp"** button
-   — a `wa.me` link, pre-filled with their name/email/account, to the number
-   in `RECEIPT_WHATSAPP_NUMBER` (set at the top of `app/subscribe/page.js`).
-   Note the real limitation here: a `wa.me` link can only pre-fill *text*,
-   not attach a file — the student still has to manually attach the receipt
-   photo once WhatsApp opens.
-4. The admin reviews pending requests at `/admin/transfer-requests` next to
-   the payer details the student typed in, and clicks **Verify** or
-   **Reject**. Verifying calls the same
-   `lib/subscriptions.js#activateSubscriptionFromPayment` used by the
-   Paystack flow below (idempotent, keyed on `MANUAL-{requestId}` as the
-   reference), extending `subscription_expires_at` by
-   `SUBSCRIPTION_ACCESS_DAYS` (30 by default). Rejecting records a reason the
-   student sees on their next visit, and lets them submit again.
-5. Access is a simple check either way:
-   `lib/queries.js#isSubscribed(userId)` compares `users.subscription_expires_at`
-   to the current time. No separate "enrollment" step is needed — the
-   `enrollments` table still exists, but it's just bookkeeping for "which
-   courses has this student opened" (used to populate their dashboard), not
-   an access gate.
+1. An admin sets the bank account students should transfer to from
+   **/admin/payments** (bank name, account name, account number, plus an
+   optional note). This is stored in the `settings` table.
+2. A logged-in student visiting **/subscribe** sees those bank details, makes
+   the transfer themselves, then fills in a short form (their account name,
+   account number, bank name, amount, date paid, and an optional receipt
+   image/PDF) which is saved to `payment_submissions` with status `PENDING`.
+   After submitting, they're shown a **"Send receipt on WhatsApp"** button
+   (`wa.me` link) so they can also forward proof of payment directly for
+   faster confirmation.
+3. The admin reviews pending submissions on **/admin/payments** — each row
+   shows the student, the payer's bank details, the amount, and a link to
+   the uploaded receipt (saved under `public/uploads/receipts/`). Clicking
+   **Verify** activates the student's subscription immediately (via the same
+   `activateSubscriptionFromPayment` used by the old Paystack flow, so it's
+   idempotent per submission); **Reject** marks it rejected with an optional
+   note the student sees so they can correct and resubmit.
+4. Access is a simple check: `lib/queries.js#isSubscribed(userId)` compares
+   `users.subscription_expires_at` to the current time — same as before.
+   A verified bank transfer grants `SUBSCRIPTION_ACCESS_DAYS` (30 by default)
+   of access, same as a manual (non-plan) Paystack payment would.
 
-Because this is fully manual, renewal is manual too: nothing automatically
-re-charges a student, so plan on nudging students to resubmit a transfer
-before their `subscription_expires_at` date if you want them to stay
-subscribed continuously.
+<details>
+<summary>The original Paystack (card payment) flow, for reference</summary>
 
-### Switching back to Paystack
+1. A logged-in student clicks **Subscribe** and hits `POST
+   /api/paystack/checkout`, which calls Paystack's Initialize Transaction API
+   and redirects them to Paystack's hosted payment page.
+2. After paying, Paystack redirects back to `/subscribe/success?reference=...`.
+   That page immediately calls `POST /api/paystack/verify` with the
+   reference, so the student sees confirmation right away rather than waiting
+   on a webhook.
+3. Independently, Paystack also sends a `charge.success` webhook to
+   `POST /api/paystack/webhook`. This is the source of truth for recurring
+   renewals and covers the case where the student closes the tab before the
+   verify call finishes. The signature is checked with HMAC-SHA512 using
+   `PAYSTACK_SECRET_KEY`.
+4. Both paths funnel into `lib/subscriptions.js#activateSubscriptionFromPayment`,
+   which is **idempotent** (keyed on the Paystack transaction `reference`),
+   so it's safe for the verify call and the webhook to both fire for the same
+   payment.
+5. Access is a simple check: `lib/queries.js#isSubscribed(userId)` compares
+   `users.subscription_expires_at` to the current time. No separate
+   "enrollment" step is needed — the `enrollments` table still exists, but
+   it's just bookkeeping for "which courses has this student opened" (used
+   to populate their dashboard), not an access gate.
 
-The card-payment flow built earlier (`lib/paystack.js`,
-`app/api/paystack/*`, `app/subscribe/SubscribeButton.js`) is still in the
-codebase and untouched — it's just not wired into `/subscribe` anymore. To
-re-enable it: swap the `<TransferRequestForm>` in `app/subscribe/page.js`
-back for `<SubscribeButton />`, and set `PAYSTACK_SECRET_KEY` and
-`PAYSTACK_PUBLIC_KEY`, then point a Paystack webhook at
-`/api/paystack/webhook`. **Auto-renewing vs. manual renewal:** if you create
-a [Paystack Plan](https://dashboard.paystack.com/#/plans) and set its code in
+**Auto-renewing vs. manual renewal:** if you create a
+[Paystack Plan](https://dashboard.paystack.com/#/plans) and set its code in
 `PAYSTACK_PLAN_CODE`, Paystack will automatically charge the student again at
-the plan's interval — real recurring billing, unlike the bank-transfer flow
-above.
+the plan's interval and send follow-up webhook events — real recurring
+billing. Without a plan code, a successful payment simply grants
+`SUBSCRIPTION_ACCESS_DAYS` (30 by default) of access, and the student pays
+again manually to renew — simpler to set up, no dashboard configuration
+required, but not automatic.
+
+</details>
 
 ## 3. Deploying
 
@@ -208,27 +211,20 @@ Railway, Render, Fly.io, or similar with a persistent disk):
 3. Everything else (routes, pages, components) is unchanged, since they all
    go through `lib/db.js` and `lib/queries.js`.
 
-**No payment webhook to configure** for the active bank-transfer flow — it's
-all first-party (admin clicks Verify), nothing external to wire up. (If you
-switch back to Paystack, see its webhook setup in "Switching back to
-Paystack" above.)
+**Paystack webhook in production:** in your Paystack dashboard, go to
+Settings > API Keys & Webhooks and set the webhook URL to
+`https://yourdomain.com/api/paystack/webhook`. Paystack signs webhook
+requests with your secret key itself (no separate webhook secret to copy) —
+just make sure `PAYSTACK_SECRET_KEY` is set correctly in production.
 
 **Before launch:**
 - Change the seeded admin password (log in, and update it directly via the
   database, or wire up a password-change form — not included yet).
 - Set a real, random `AUTH_SECRET`.
-- Log into `/admin/payment-settings` and enter your **real** bank account
-  details — nothing is pre-filled, and the subscribe page shows "not set up
-  yet" until you do this.
-- Set your real `SUBSCRIPTION_PRICE_MINOR` and `SUBSCRIPTION_CURRENCY`.
-- Update the WhatsApp receipt number in `app/subscribe/page.js`
-  (`RECEIPT_WHATSAPP_NUMBER`) and the contact details on the homepage
-  (`app/page.js`) and footer (`components/SiteFooter.js`) if they change.
+- Set your real `SUBSCRIPTION_PRICE_MINOR` and, if you want auto-renewing
+  billing, create a Paystack Plan and set `PAYSTACK_PLAN_CODE`.
 - Decide which courses (if any) should stay free previews via the
   "Requires an active subscription" toggle in each course's admin settings.
-- Check `/admin/transfer-requests` regularly — nothing auto-verifies a
-  payment, so a student who transfers money won't get access until an admin
-  clicks Verify.
 
 ## 4. What's intentionally left simple (and how to extend it)
 

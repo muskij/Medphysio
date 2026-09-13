@@ -23,8 +23,11 @@ export default function SiteHeader({ user, subscribed }) {
               {user.name.split(" ")[0]}&rsquo;s {user.role === "STUDENT" ? "dashboard" : "admin"}
             </Link>
             {user.role === "STUDENT" && !subscribed && (
-              <Link className="button small" href="/subscribe">
-                Subscribe
+              <Link className="upgrade-btn" href="/subscribe">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M5 18h14l1.5-9-5 3-3.5-6-3.5 6-5-3L5 18z" />
+                </svg>
+                Upgrade
               </Link>
             )}
             <LogoutButton className="button small" />
