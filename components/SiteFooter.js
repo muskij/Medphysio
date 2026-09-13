@@ -19,6 +19,15 @@ export default function SiteFooter() {
         <Link href="/#about">About</Link>
         <Link href="/#contact">Contact</Link>
       </div>
+      <p style={{ fontSize: 13, color: "#7c9195", margin: "10px 0 0" }}>
+        <a href="mailto:MedPhysioTutorial@gmail.com" style={{ color: "inherit" }}>
+          MedPhysioTutorial@gmail.com
+        </a>{" "}
+        &middot;{" "}
+        <a href="tel:08032439067" style={{ color: "inherit" }}>
+          0803 243 9067
+        </a>
+      </p>
       <small>&copy; {new Date().getFullYear()} MedPhysio Tutorials. Built for curious minds.</small>
     </footer>
   );

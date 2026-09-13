@@ -201,11 +201,3 @@
 .quiz-option-row input[type="text"] {
   flex: 1;
 }
-.admin-pill.verified {
-  background: #dff5ee;
-  color: #218277;
-}
-.admin-pill.rejected {
-  background: #ffe4e0;
-  color: #b5432e;
-}

@@ -259,35 +259,41 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section contact" id="contact">
-        <div className="section-heading">
-          <div>
+      <section className="section about" id="contact">
+        <div className="about-card">
+          <div className="about-copy">
             <span className="kicker">We&rsquo;re here to help</span>
             <h2>
-              Get in touch
+              Questions before
               <br />
-              <em>with MedPhysio Tutorials.</em>
+              <em>you get started?</em>
             </h2>
-          </div>
-          <p>Questions about courses, subscriptions or anything else? Reach us any of these ways.</p>
-        </div>
-        <div className="contact-grid">
-          <div className="contact-card">
-            <span className="contact-icon">&#9993;</span>
-            <h3>Email</h3>
-            <a href="mailto:MedPhysioTutorial@gmail.com">MedPhysioTutorial@gmail.com</a>
-          </div>
-          <div className="contact-card">
-            <span className="contact-icon">&#9742;</span>
-            <h3>Phone</h3>
-            <a href="tel:+2348032439067">0803 243 9067</a>
-          </div>
-          <div className="contact-card">
-            <span className="contact-icon">&#128172;</span>
-            <h3>WhatsApp</h3>
-            <a href="https://wa.me/2348032429067" target="_blank" rel="noopener noreferrer">
-              0803 242 9067
-            </a>
+            <p>Reach us any of these ways and we&rsquo;ll get back to you as soon as we can.</p>
+            <ul>
+              <li>
+                <span>&#9993;</span>{" "}
+                <a href="mailto:MedPhysioTutorial@gmail.com" style={{ color: "inherit" }}>
+                  MedPhysioTutorial@gmail.com
+                </a>
+              </li>
+              <li>
+                <span>&#9742;</span>{" "}
+                <a href="tel:08032439067" style={{ color: "inherit" }}>
+                  0803 243 9067
+                </a>
+              </li>
+              <li>
+                <span>&#128172;</span>{" "}
+                <a
+                  href="https://wa.me/2348032429067"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "inherit" }}
+                >
+                  WhatsApp: 0803 242 9067
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
