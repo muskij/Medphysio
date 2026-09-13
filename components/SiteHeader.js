@@ -5,13 +5,7 @@ export default function SiteHeader({ user, subscribed }) {
   return (
     <header className="site-header">
       <Link className="logo" href="/" aria-label="MedPhysio Tutorials home">
-        <span className="logo-mark">
-          M<span>+</span>
-        </span>
-        <span className="logo-copy">
-          <strong>MedPhysio</strong>
-          <small>Tutorials</small>
-        </span>
+        <img src="/assets/img/logo.png" alt="MedPhysio Tutorials" className="logo-img" />
       </Link>
       <nav aria-label="Main navigation">
         <Link href="/#courses">Courses</Link>
