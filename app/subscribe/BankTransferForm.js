@@ -79,7 +79,20 @@ export default function BankTransferForm({ user, displayAmount, currency }) {
 
   return (
     <form className="join-form-card" onSubmit={handleSubmit}>
-      <h4 style={{ margin: "0 0 12px", color: "var(--navy)" }}>I&rsquo;ve made the transfer &mdash; confirm it here</h4>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
+        <h4 style={{ margin: 0, color: "var(--navy)" }}>I&rsquo;ve made the transfer &mdash; confirm it here</h4>
+        <a
+          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+            `Hi MedPhysio Tutorials, I'm on the payment page for my subscription and wanted to reach out.\nName: ${payerName || user?.name || ""}\nEmail: ${user?.email || ""}`
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="button small"
+          style={{ background: "#25D366" }}
+        >
+          Notify admin on WhatsApp
+        </a>
+      </div>
       <div className="jf-grid">
         <label>
           Your account name (who paid)

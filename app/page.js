@@ -280,7 +280,7 @@ export default async function HomePage() {
           <div className="contact-card">
             <span className="contact-icon">&#9742;</span>
             <h3>Phone</h3>
-            <a href="tel:+2348032439067">0803 243 9067</a>
+            <a href="tel:+2348032429067">0803 242 9067</a>
           </div>
           <div className="contact-card">
             <span className="contact-icon">&#128172;</span>
